@@ -3,6 +3,7 @@ mod model;
 mod request;
 mod setting;
 mod store;
+mod database;
 
 use actix_web::{web, App, HttpServer};
 
@@ -12,10 +13,14 @@ use setting::Settings;
 async fn main() -> std::io::Result<()> {
     let setting = Settings::new().expect("loading configuration failed");
 
-    HttpServer::new(|| {
+    let db = database::connect(setting.database()).await;
+
+    HttpServer::new( move || {
+        let url_handler = handler::url::URL::new(store::url::URL::new(db.clone()));
+
         App::new()
             .service(
-                handler::url::URL::register(web::scope("/api"))
+               url_handler.register(web::scope("/api"))
             )
             .service(
                 handler::healthz::Healthz::register(web::scope("/"))
