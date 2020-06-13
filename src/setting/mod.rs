@@ -4,6 +4,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Database {
     address: String,
+    name: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -53,5 +54,9 @@ impl Server {
 impl Database {
     pub fn address(&self) -> &str {
         self.address.as_str()
+    }
+
+    pub fn name(&self) -> &str {
+        self.name.as_str()
     }
 }
