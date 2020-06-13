@@ -11,4 +11,35 @@ export default function() {
       "success": (res) => res.status === 204,
     });
   });
+  group("short", () => {
+    let name = ""
+    group("create", () => {
+      let payload = JSON.stringify({
+        "url": "https://elahe-dastan.github.io",
+      });
+
+      let res = http.post(`${baseURL}/api/url`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+
+      check(res, {
+        "success": (res) => res.status == 200,
+      })
+
+      name = res.json('name')
+    })
+
+    console.log(name)
+
+    group("fetch", () => {
+      let res = http.get(`${baseURL}/api/url/${name}`)
+
+      check(res, {
+        "success": (res) => res.status == 200,
+      })
+    })
+
+  })
 }
