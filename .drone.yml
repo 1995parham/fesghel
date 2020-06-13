@@ -1,0 +1,20 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: test
+    image: rust
+    commands:
+      - cargo build --verbose --all
+      - cargo test --verbose --all
+  - name: lint
+    image: rust
+    commands:
+      - rustup component add rustfmt && cargo fmt
+      - rustup component add clippy && cargo clippy
+
+services:
+  - name: database
+    image: mongo:latest
