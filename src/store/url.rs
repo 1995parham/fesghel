@@ -28,13 +28,13 @@ impl URL {
         thread_rng().sample_iter(&Alphanumeric).take(6).collect()
     }
 
-    pub async fn fetch(&self, name: &str) -> Option<model::url::URL> {
+    pub async fn fetch(&self, name: &str) -> Option<model::URL> {
         self.db.collection(COLLECTION).find_one(bson::doc! { "name": name }, None).await
             .map(|d| bson::from_bson(bson::Bson::Document(d.expect("not found"))).expect("from_bson failed"))
                 .ok()
     }
 
-    pub async fn store(&self, url: &model::url::URL) {
+    pub async fn store(&self, url: &model::URL) {
         match bson::to_bson(url).expect("to_bson failed") {
             bson::Bson::Document(doc) => {
                 self.db.collection(COLLECTION).insert_one(doc, None).await.expect("insertion failed");

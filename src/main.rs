@@ -16,14 +16,14 @@ async fn main() -> std::io::Result<()> {
     let db = database::connect(setting.database()).await;
 
     HttpServer::new( move || {
-        let url_handler = handler::url::URL::new(store::url::URL::new(db.clone()));
+        let url_handler = handler::URL::new(store::URL::new(db.clone()));
 
         App::new()
             .service(
                url_handler.register(web::scope("/api"))
             )
             .service(
-                handler::healthz::Healthz::register(web::scope("/"))
+                handler::Healthz::register(web::scope("/"))
             )
     })
     .bind(
