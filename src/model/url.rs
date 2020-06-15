@@ -3,22 +3,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct URL {
     url: String,
-    name: String,
+    key: String,
 }
 
 impl URL {
-    pub fn name(&self) -> &str {
-        self.name.as_str()
+    pub fn key(&self) -> &str {
+        self.key.as_str()
     }
 
     pub fn url(&self) -> &str {
         self.url.as_str()
     }
 
-    pub fn new(url: &str, name: &str) -> Self {
+    pub fn new(url: &str, key: &str) -> Self {
         URL {
             url: String::from(url),
-            name: String::from(name),
+            key: String::from(key),
         }
     }
 }

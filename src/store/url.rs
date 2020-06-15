@@ -29,9 +29,17 @@ impl URL {
     }
 
     pub async fn fetch(&self, name: &str) -> Option<model::URL> {
-        self.db.collection(COLLECTION).find_one(bson::doc! { "name": name }, None).await
-            .map(|d| bson::from_bson(bson::Bson::Document(d.expect("not found"))).expect("from_bson failed"))
-                .ok()
+        let res = self.db.collection(COLLECTION).find_one(bson::doc! { "key": name }, None).await;
+
+        match res {
+            Ok(d) =>  {
+                match d {
+                    Some(d) => bson::from_bson(bson::Bson::Document(d)).expect("from_bson failed"),
+                    None => None,
+                }
+            },
+            Err(..) => None
+        }
     }
 
     pub async fn store(&self, url: &model::URL) {

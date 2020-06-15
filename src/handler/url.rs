@@ -36,7 +36,7 @@ impl URL {
         let m = model::URL::new(url.url(), name.as_str());
         data.as_ref().store.store(&m).await;
 
-        HttpResponse::Ok().json(m)
+        HttpResponse::Ok().json(m.key())
     }
 
     async fn fetch(data: web::Data<Self>, name: web::Path<String>) -> impl Responder {
@@ -57,6 +57,6 @@ impl URL {
     pub fn register(self, scope: Scope) -> Scope {
         let data = web::Data::new(self);
         scope
-            .app_data(data).route("/url", web::post().to(Self::create)).route("/url/{name}", web::get().to(Self::fetch))
+            .app_data(data).route("/urls", web::post().to(Self::create)).route("/{name}", web::get().to(Self::fetch))
     }
 }
