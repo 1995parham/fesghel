@@ -18,7 +18,7 @@ export default function() {
         "url": "https://elahe-dastan.github.io",
       });
 
-      let res = http.post(`${baseURL}/api/url`, payload, {
+      let res = http.post(`${baseURL}/api/urls`, payload, {
         headers: {
           "Content-Type": "application/json",
         }
@@ -28,13 +28,13 @@ export default function() {
         "success": (res) => res.status == 200,
       })
 
-      name = res.json('name')
+      name = res.json()
     })
 
     console.log(name)
 
     group("fetch", () => {
-      let res = http.get(`${baseURL}/api/url/${name}`)
+      let res = http.get(`${baseURL}/api/${name}`)
 
       check(res, {
         "success": (res) => res.status == 200,
