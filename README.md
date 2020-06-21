@@ -12,20 +12,20 @@ Fesghel is a name of the following haapoo 🐶
 
 ## Load Testing
 ```
-    checks.....................: 99.80% ✓ 2994  ✗ 6
-    data_received..............: 2.0 MB 58 kB/s
-    data_sent..................: 520 kB 15 kB/s
-    group_duration.............: avg=878.92ms min=299.68µs med=440.42ms max=34.21s  p(90)=1.97s   p(95)=3.23s
-    http_req_blocked...........: avg=13.63ms  min=0s       med=3µs      max=2.75s   p(90)=12µs    p(95)=144.44µs
-    http_req_connecting........: avg=5.81ms   min=0s       med=0s       max=2.39s   p(90)=0s      p(95)=4.64µs
-    http_req_duration..........: avg=381.12ms min=0s       med=143.99ms max=6.32s   p(90)=1.13s   p(95)=1.73s
-    http_req_receiving.........: avg=114.92µs min=0s       med=56µs     max=13.12ms p(90)=203µs   p(95)=323.19µs
-    http_req_sending...........: avg=50.86µs  min=0s       med=22µs     max=6.26ms  p(90)=83.09µs p(95)=133µs
-    http_req_tls_handshaking...: avg=7.76ms   min=0s       med=0s       max=1.4s    p(90)=0s      p(95)=0s
-    http_req_waiting...........: avg=380.96ms min=0s       med=143.75ms max=6.32s   p(90)=1.13s   p(95)=1.73s
-    http_reqs..................: 4000   116.781225/s
-    iteration_duration.........: avg=1.76s    min=166.99ms med=1.23s    max=34.22s  p(90)=3.5s    p(95)=4.14s
-    iterations.................: 1000   29.195306/s
+    checks.....................: 99.60% ✓ 2988  ✗ 12
+    data_received..............: 1.9 MB 62 kB/s
+    data_sent..................: 516 kB 17 kB/s
+    group_duration.............: avg=346.67ms min=234.35µs med=141.88ms max=30.76s   p(90)=229.84ms p(95)=685.55ms
+    http_req_blocked...........: avg=21.66ms  min=0s       med=2µs      max=2.87s    p(90)=5µs      p(95)=24.09µs
+    http_req_connecting........: avg=8.24ms   min=0s       med=0s       max=2.33s    p(90)=0s       p(95)=0s
+    http_req_duration..........: avg=61.05ms  min=0s       med=14.22ms  max=605.39ms p(90)=169.05ms p(95)=194.65ms
+    http_req_receiving.........: avg=52.36µs  min=0s       med=39µs     max=13.13ms  p(90)=76µs     p(95)=99.04µs
+    http_req_sending...........: avg=24.95µs  min=0s       med=15µs     max=888µs    p(90)=46µs     p(95)=64µs
+    http_req_tls_handshaking...: avg=8.81ms   min=0s       med=0s       max=468.61ms p(90)=0s       p(95)=0s
+    http_req_waiting...........: avg=60.98ms  min=0s       med=14.15ms  max=605.26ms p(90)=168.95ms p(95)=194.42ms
+    http_reqs..................: 4000   129.987115/s
+    iteration_duration.........: avg=694.13ms min=131.95ms med=190.51ms max=30.77s   p(90)=748.75ms p(95)=1.51s
+    iterations.................: 1000   32.496779/s
     vus........................: 100    min=100 max=100
     vus_max....................: 100    min=100 max=100
  ```
