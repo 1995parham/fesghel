@@ -26,6 +26,7 @@ async fn main() -> std::io::Result<()> {
                 handler::Healthz::register(web::scope("/"))
             )
     })
+    .workers(12)
     .bind(
         format!("{}:{}", setting.server().host(), setting.server().port())
         )?
