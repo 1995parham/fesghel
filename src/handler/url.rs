@@ -34,9 +34,10 @@ impl URL {
         };
 
         let m = model::URL::new(url.url(), name.as_str());
-        data.as_ref().store.store(&m).await;
-
-        HttpResponse::Ok().json(m.key())
+        match data.as_ref().store.store(&m).await {
+            Ok(..) => HttpResponse::Ok().json(m.key()),
+            Err(..) => HttpResponse::InternalServerError().json("Something went wrong"),
+        }
     }
 
     async fn fetch(data: web::Data<Self>, name: web::Path<String>) -> impl Responder {
