@@ -46,12 +46,8 @@ impl URL {
 
     pub async fn store(&self, url: &model::URL) ->  Result<(), Error> {
         match bson::to_bson(url).expect("to_bson failed") {
-            bson::Bson::Document(doc) => {
-                match self.db.collection(COLLECTION).insert_one(doc, None).await {
-                    Ok(..) => Ok(()),
-                    Err(error) => Err(Error{error: Box::new(error)}),
-                }
-            },
+            bson::Bson::Document(doc) =>
+                self.db.collection(COLLECTION).insert_one(doc, None).await.map_err(|err| Error{error: Box::new(err)}).map(|_| ()),
             _ => Ok(()),
         }
     }
