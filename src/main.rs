@@ -11,6 +11,8 @@ use setting::Settings;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+    simple_logger::init_with_level(log::Level::Info).expect("logger initiation failed");
+
     let setting = Settings::new().expect("loading configuration failed");
 
     let db = database::connect(setting.database()).await;

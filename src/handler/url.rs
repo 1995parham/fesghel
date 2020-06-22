@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse, Responder, Scope};
+use log;
 
 use crate::request;
 use crate::model;
@@ -24,7 +25,7 @@ impl URL {
     }
 
     async fn create(data: web::Data<Self>, url: web::Json<request::URL>) -> impl Responder {
-        println!("get {:?}", url);
+        log::info!("get {:?}", url);
 
         let name: String;
         name = if url.name() == "-" {
@@ -36,12 +37,15 @@ impl URL {
         let m = model::URL::new(url.url(), name.as_str());
         match data.as_ref().store.store(&m).await {
             Ok(..) => HttpResponse::Ok().json(m.key()),
-            Err(..) => HttpResponse::InternalServerError().json("Something went wrong"),
-        }
+            Err(err) => {
+                log::error!("{}", err);
+                HttpResponse::InternalServerError().json("Something went wrong")
+            },
+    }
     }
 
     async fn fetch(data: web::Data<Self>, name: web::Path<String>) -> impl Responder {
-        println!("get {}", name);
+        log::info!("get {}", name);
 
         let url = data.as_ref().store.fetch(name.as_str()).await;
 
