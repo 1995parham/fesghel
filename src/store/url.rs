@@ -2,8 +2,10 @@ use mongodb::Database;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
 use crate::model;
+use super::error::Error;
 
 const COLLECTION: &str = "urls";
+const LENGTH: usize = 6;
 
 pub struct URL {
     db: Database,
@@ -25,7 +27,7 @@ impl URL {
     }
 
     pub fn random_key() -> String {
-        thread_rng().sample_iter(&Alphanumeric).take(6).collect()
+        thread_rng().sample_iter(&Alphanumeric).take(LENGTH).collect()
     }
 
     pub async fn fetch(&self, name: &str) -> Option<model::URL> {
@@ -42,12 +44,15 @@ impl URL {
         }
     }
 
-    pub async fn store(&self, url: &model::URL) {
+    pub async fn store(&self, url: &model::URL) ->  Result<(), Error> {
         match bson::to_bson(url).expect("to_bson failed") {
             bson::Bson::Document(doc) => {
-                self.db.collection(COLLECTION).insert_one(doc, None).await.expect("insertion failed");
+                match self.db.collection(COLLECTION).insert_one(doc, None).await {
+                    Ok(..) => Ok(()),
+                    Err(error) => Err(Error{error: Box::new(error)}),
+                }
             },
-            _ => (),
+            _ => Ok(()),
         }
     }
 }
