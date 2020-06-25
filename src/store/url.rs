@@ -7,16 +7,9 @@ use super::error::Error;
 const COLLECTION: &str = "urls";
 const LENGTH: usize = 6;
 
+#[derive(Clone)]
 pub struct URL {
     db: Database,
-}
-
-impl Clone for URL {
-    fn clone(&self) -> Self {
-        URL{
-            db: self.db.clone(),
-        }
-    }
 }
 
 impl URL {
