@@ -7,13 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "2.0"
-actix-rt = "1.0"
-mongodb = "1.0"
-serde = "1.0"
-config = "0.10"
-chrono = { version = "0.4", features = ["serde"] }
-rand = "0.7"
-bson = "1.0"
-log = "0.4"
-simple_logger = "1.6"
+actix-web = "3.3.2"
+mongodb = "1.2.3"
+serde = "1.0.130"
+config = { version = "0.11.0", features = ["toml"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+rand = "0.8.4"
+bson = "1.2.3"
+log = "0.4.14"
+simple_logger = "1.13.0"
