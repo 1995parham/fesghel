@@ -1,8 +1,8 @@
 use mongodb::Database;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-use crate::model;
 use super::error::Error;
+use crate::model;
 
 const COLLECTION: &str = "urls";
 const LENGTH: usize = 6;
@@ -14,33 +14,44 @@ pub struct URL {
 
 impl URL {
     pub fn new(db: Database) -> Self {
-        URL {
-            db,
-        }
+        URL { db }
     }
 
     pub fn random_key() -> String {
-        thread_rng().sample_iter(&Alphanumeric).take(LENGTH).collect()
+        thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(LENGTH)
+            .map(char::from)
+            .collect()
     }
 
     pub async fn fetch(&self, name: &str) -> Option<model::URL> {
-        let res = self.db.collection(COLLECTION).find_one(bson::doc! { "key": name }, None).await;
+        let res = self
+            .db
+            .collection(COLLECTION)
+            .find_one(bson::doc! { "key": name }, None)
+            .await;
 
         match res {
-            Ok(d) =>  {
-                match d {
-                    Some(d) => bson::from_bson(bson::Bson::Document(d)).expect("from_bson failed"),
-                    None => None,
-                }
+            Ok(d) => match d {
+                Some(d) => bson::from_bson(bson::Bson::Document(d)).expect("from_bson failed"),
+                None => None,
             },
-            Err(..) => None
+            Err(..) => None,
         }
     }
 
-    pub async fn store(&self, url: &model::URL) ->  Result<(), Error> {
+    pub async fn store(&self, url: &model::URL) -> Result<(), Error> {
         match bson::to_bson(url).expect("to_bson failed") {
-            bson::Bson::Document(doc) =>
-                self.db.collection(COLLECTION).insert_one(doc, None).await.map_err(|err| Error{error: Box::new(err)}).map(|_| ()),
+            bson::Bson::Document(doc) => self
+                .db
+                .collection(COLLECTION)
+                .insert_one(doc, None)
+                .await
+                .map_err(|err| Error {
+                    error: Box::new(err),
+                })
+                .map(|_| ()),
             _ => Ok(()),
         }
     }
