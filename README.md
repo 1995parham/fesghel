@@ -1,16 +1,18 @@
 # fesghel
-[![Drone (cloud)](https://img.shields.io/drone/build/1995parham/fesghel.svg?style=flat-square)](https://cloud.drone.io/1995parham/fesghel)
 
 ## Introduction
+
 Here I am trying to implement an URL shortener with concepts that I use in Golang.
 It uses MongoDB as its storage.
 
 ## Nomenclature
+
 Fesghel is a name of the following haapoo 🐶
 
 ![haapoo](.img/haapoo.jpg)
 
 ## Load Testing
+
 ```
     checks.....................: 99.60% ✓ 2988  ✗ 12
     data_received..............: 1.9 MB 62 kB/s
@@ -28,4 +30,4 @@ Fesghel is a name of the following haapoo 🐶
     iterations.................: 1000   32.496779/s
     vus........................: 100    min=100 max=100
     vus_max....................: 100    min=100 max=100
- ```
+```
