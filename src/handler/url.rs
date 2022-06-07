@@ -4,34 +4,34 @@ use crate::model;
 use crate::request;
 use crate::store;
 
-pub struct URL {
-    store: store::URL,
+pub struct Url {
+    store: store::Url,
 }
 
-impl Clone for URL {
+impl Clone for Url {
     fn clone(&self) -> Self {
-        URL {
+        Url {
             store: self.store.clone(),
         }
     }
 }
 
-impl URL {
-    pub fn new(store: store::URL) -> Self {
-        URL { store }
+impl Url {
+    pub fn new(store: store::Url) -> Self {
+        Url { store }
     }
 
-    async fn create(data: web::Data<Self>, url: web::Json<request::URL>) -> impl Responder {
+    async fn create(data: web::Data<Self>, url: web::Json<request::Url>) -> impl Responder {
         log::info!("get {:?}", url);
 
         let name: String;
         name = if url.name() == "-" {
-            store::URL::random_key()
+            store::Url::random_key()
         } else {
             String::from(url.name())
         };
 
-        let m = model::URL::new(url.url(), name.as_str());
+        let m = model::Url::new(url.url(), name.as_str());
         match data.as_ref().store.store(&m).await {
             Ok(..) => HttpResponse::Ok().json(m.key()),
             Err(err) => {

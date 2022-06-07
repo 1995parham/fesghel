@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct URL {
+pub struct Url {
     url: String,
     key: String,
 }
 
-impl URL {
+impl Url {
     pub fn key(&self) -> &str {
         self.key.as_str()
     }
@@ -16,7 +16,7 @@ impl URL {
     }
 
     pub fn new(url: &str, key: &str) -> Self {
-        URL {
+        Url {
             url: String::from(url),
             key: String::from(key),
         }

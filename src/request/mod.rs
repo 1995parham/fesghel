@@ -2,13 +2,13 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct URL {
+pub struct Url {
     url: String,
     name: Option<String>,
     expire: Option<DateTime<Utc>>,
 }
 
-impl URL {
+impl Url {
     pub fn url(&self) -> &str {
         self.url.as_str()
     }
