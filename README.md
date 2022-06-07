@@ -1,17 +1,21 @@
-# fesghel
+# Fesghel
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/1995parham/fesghel/ci?label=ci&logo=github&style=flat-square)
 
 ## Introduction
 
-Here I am trying to implement an URL shortener with concepts that I use in Golang.
-It uses MongoDB as its storage.
+Here I am trying to implement an URL shortener with concepts that I use in Golang but this time in Rust.
+It uses MongoDB as its storage backend.
 
 ## Nomenclature
 
-Fesghel is a name of the following haapoo 🐶
+Fesghel is a name of the following haapoo 🐶:
 
 ![haapoo](.img/haapoo.jpg)
 
 ## Load Testing
+
+As you can see response time in Rust is much better than Golang.
 
 ```
     checks.....................: 99.60% ✓ 2988  ✗ 12
