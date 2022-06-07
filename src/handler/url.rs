@@ -1,3 +1,4 @@
+use actix_web::http::header;
 use actix_web::{web, HttpResponse, Responder, Scope};
 
 use crate::model;
@@ -24,8 +25,7 @@ impl Url {
     async fn create(data: web::Data<Self>, url: web::Json<request::Url>) -> impl Responder {
         log::info!("get {:?}", url);
 
-        let name: String;
-        name = if url.name() == "-" {
+        let name = if url.name() == "-" {
             store::Url::random_key()
         } else {
             String::from(url.name())
@@ -47,8 +47,8 @@ impl Url {
         let url = data.as_ref().store.fetch(name.as_str()).await;
 
         match url {
-            Some(url) => HttpResponse::Found()
-                .set_header("Location", url.url())
+            Some(url) => HttpResponse::TemporaryRedirect()
+                .insert_header((header::LOCATION, url.url()))
                 .finish(),
             None => HttpResponse::NotFound().finish(),
         }
