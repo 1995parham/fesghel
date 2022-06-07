@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
     let db = database::connect(setting.database()).await;
 
     HttpServer::new(move || {
-        let url_handler = handler::URL::new(store::URL::new(db.clone()));
+        let url_handler = handler::Url::new(store::Url::new(db.clone()));
 
         App::new()
             .service(url_handler.register(web::scope("/api")))

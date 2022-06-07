@@ -8,13 +8,13 @@ const COLLECTION: &str = "urls";
 const LENGTH: usize = 6;
 
 #[derive(Clone)]
-pub struct URL {
+pub struct Url {
     db: Database,
 }
 
-impl URL {
+impl Url {
     pub fn new(db: Database) -> Self {
-        URL { db }
+        Url { db }
     }
 
     pub fn random_key() -> String {
@@ -25,7 +25,7 @@ impl URL {
             .collect()
     }
 
-    pub async fn fetch(&self, name: &str) -> Option<model::URL> {
+    pub async fn fetch(&self, name: &str) -> Option<model::Url> {
         let res = self
             .db
             .collection(COLLECTION)
@@ -41,7 +41,7 @@ impl URL {
         }
     }
 
-    pub async fn store(&self, url: &model::URL) -> Result<(), Error> {
+    pub async fn store(&self, url: &model::Url) -> Result<(), Error> {
         match bson::to_bson(url).expect("to_bson failed") {
             bson::Bson::Document(doc) => self
                 .db
@@ -60,10 +60,10 @@ impl URL {
 mod tests {
     #[test]
     fn random_key() {
-        let s1 = super::URL::random_key();
+        let s1 = super::Url::random_key();
         assert_eq!(s1.len(), 6);
 
-        let s2 = super::URL::random_key();
+        let s2 = super::Url::random_key();
 
         assert_ne!(s1, s2);
     }
