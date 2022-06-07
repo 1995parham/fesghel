@@ -1,11 +1,11 @@
-use chrono::{DateTime, Utc};
+// use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Url {
     url: String,
     name: Option<String>,
-    expire: Option<DateTime<Utc>>,
+    // expire: Option<DateTime<Utc>>,
 }
 
 impl Url {
