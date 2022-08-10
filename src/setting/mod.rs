@@ -26,7 +26,8 @@ impl Settings {
             .add_source(config::File::with_name("config/default"))
             .add_source(config::Environment::with_prefix("FESGHEL"))
             .add_source(config::File::with_name("settings"))
-            .build()?.try_deserialize()
+            .build()?
+            .try_deserialize()
     }
 
     pub fn server(&self) -> &Server {
