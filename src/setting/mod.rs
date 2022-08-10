@@ -20,15 +20,13 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> Result<Self, config::ConfigError> {
-        let mut settings = config::Config::new();
+        let settings = config::Config::builder();
 
         settings
-            .merge(config::File::with_name("config/default"))?
-            .merge(config::Environment::with_prefix("FESGHEL"))?;
-
-        settings.merge(config::File::with_name("settings")).ok();
-
-        settings.try_into()
+            .add_source(config::File::with_name("config/default"))
+            .add_source(config::Environment::with_prefix("FESGHEL"))
+            .add_source(config::File::with_name("settings"))
+            .build()?.try_deserialize()
     }
 
     pub fn server(&self) -> &Server {
