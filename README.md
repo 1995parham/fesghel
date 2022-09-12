@@ -4,14 +4,14 @@
 
 ## Introduction
 
-Here I am trying to implement an URL shortener with concepts that I use in Golang but this time in Rust.
+Here I am trying to implement a URL shortener with concepts that I use in Golang but this time in Rust.
 It uses MongoDB as its storage backend.
 
 ## Nomenclature
 
 Fesghel is a name of the following haapoo 🐶:
 
-![haapoo](.img/haapoo.jpg)
+![haapoo](.github/assets/haapoo.jpg)
 
 ## Load Testing
 
