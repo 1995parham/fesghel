@@ -11,7 +11,7 @@ actix-web = "4"
 mongodb = "2"
 serde = "1.0.188"
 config = { version = "0.13.3", features = ["toml"] }
-chrono = { version = "0.4.28", features = ["serde"] }
+chrono = { version = "0.4.30", features = ["serde"] }
 rand = "0.8.5"
 bson = "2"
 log = "0.4.20"
