@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4"
 mongodb = "2"
-serde = "1.0.189"
+serde = "1.0.190"
 config = { version = "0.13.3", features = ["toml"] }
 chrono = { version = "0.4.31", features = ["serde"] }
 rand = "0.8.5"
