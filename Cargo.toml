@@ -15,4 +15,4 @@ chrono = { version = "0.4.31", features = ["serde"] }
 rand = "0.8.5"
 bson = "2"
 log = "0.4.20"
-simple_logger = "4.2.0"
+simple_logger = "4.3.0"
