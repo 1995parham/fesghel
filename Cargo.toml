@@ -10,7 +10,7 @@ edition = "2021"
 actix-web = "4"
 mongodb = "2"
 serde = "1.0.196"
-config = { version = "0.13.4", features = ["toml"] }
+config = { version = "0.14.0", features = ["toml"] }
 chrono = { version = "0.4.33", features = ["serde"] }
 rand = "0.8.5"
 bson = "2"
