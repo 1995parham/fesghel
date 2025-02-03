@@ -1,5 +1,5 @@
 use mongodb::Database;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::{distr::Alphanumeric, rng, Rng};
 
 use super::error::Error;
 use crate::model;
@@ -18,7 +18,7 @@ impl Url {
     }
 
     pub fn random_key() -> String {
-        thread_rng()
+        rng()
             .sample_iter(&Alphanumeric)
             .take(LENGTH)
             .map(char::from)
