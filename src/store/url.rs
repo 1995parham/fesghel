@@ -29,7 +29,7 @@ impl Url {
         let res = self
             .db
             .collection(COLLECTION)
-            .find_one(bson::doc! { "key": name }, None)
+            .find_one(bson::doc! { "key": name })
             .await;
 
         match res {
@@ -46,7 +46,7 @@ impl Url {
             bson::Bson::Document(doc) => self
                 .db
                 .collection(COLLECTION)
-                .insert_one(doc, None)
+                .insert_one(doc)
                 .await
                 .map_err(|err| Error {
                     error: Box::new(err),
