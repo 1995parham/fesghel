@@ -1451,9 +1451,9 @@ dependencies = [
 
 [[package]]
 name = "mongodb"
-version = "3.2.2"
+version = "3.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e5f2b7791f13490c99dc2638265006b08e8675945671e29bd0d763da09fdc61"
+checksum = "fdf4261933e5113914caec01c4bb16a7502bdaa9cf80fd87191765e7d9ff16b2"
 dependencies = [
  "async-trait",
  "base64 0.13.1",
@@ -1500,9 +1500,9 @@ dependencies = [
 
 [[package]]
 name = "mongodb-internal-macros"
-version = "3.2.2"
+version = "3.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d848d178417aab67f0ef7196082fa4e95ce42ed9d2a1cfd2f074de76855d0075"
+checksum = "619176c99deef0d50be51ce3193e9efd6a56ab0f4e6a38d5fd614880d148c7ae"
 dependencies = [
  "macro_magic",
  "proc-macro2",
