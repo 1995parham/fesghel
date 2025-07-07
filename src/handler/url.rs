@@ -23,7 +23,7 @@ impl Url {
     }
 
     async fn create(data: web::Data<Self>, url: web::Json<request::Url>) -> impl Responder {
-        log::info!("get {:?}", url);
+        log::info!("get {url:?}");
 
         let name = if url.name() == "-" {
             store::Url::random_key()
@@ -35,14 +35,14 @@ impl Url {
         match data.as_ref().store.store(&m).await {
             Ok(..) => HttpResponse::Ok().json(m.key()),
             Err(err) => {
-                log::error!("{}", err);
+                log::error!("{err}");
                 HttpResponse::InternalServerError().json("Something went wrong")
             }
         }
     }
 
     async fn fetch(data: web::Data<Self>, name: web::Path<String>) -> impl Responder {
-        log::info!("get {}", name);
+        log::info!("get {name}");
 
         let url = data.as_ref().store.fetch(name.as_str()).await;
 
