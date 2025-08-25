@@ -1,5 +1,5 @@
 use actix_web::http::header;
-use actix_web::{web, HttpResponse, Responder, Scope};
+use actix_web::{HttpResponse, Responder, Scope, web};
 
 use crate::model;
 use crate::request;

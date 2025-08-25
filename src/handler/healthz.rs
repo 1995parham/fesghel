@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse, Responder, Scope};
+use actix_web::{HttpResponse, Responder, Scope, web};
 
 pub struct Healthz {}
 

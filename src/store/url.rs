@@ -1,5 +1,5 @@
 use mongodb::Database;
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{Rng, distr::Alphanumeric, rng};
 
 use super::error::Error;
 use crate::model;

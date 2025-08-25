@@ -5,7 +5,7 @@ mod request;
 mod setting;
 mod store;
 
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer, web};
 
 use setting::Settings;
 
