@@ -17,7 +17,7 @@ Fesghel is a name of the following haapoo 🐶:
 
 As you can see response time in Rust is much better than Golang.
 
-```
+```text
     checks.....................: 99.60% ✓ 2988  ✗ 12
     data_received..............: 1.9 MB 62 kB/s
     data_sent..................: 516 kB 17 kB/s
