@@ -21,16 +21,11 @@ async fn main() -> std::io::Result<()> {
         let store = store::Url::new(db.clone());
 
         App::new()
-            .service(
-                crate::handler::url::register(
-                    crate::handler::url::State::new(store), web::scope("/api")
-                )
-            )
-            .service(
-                crate::handler::healthz::register(
-                    web::scope("")
-                )
-            )
+            .service(crate::handler::url::register(
+                crate::handler::url::State::new(store),
+                web::scope("/api"),
+            ))
+            .service(crate::handler::healthz::register(web::scope("")))
     })
     .workers(12)
     .bind(format!(
