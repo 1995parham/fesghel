@@ -11,7 +11,7 @@ pub struct State {
 
 impl State {
     pub fn new(store: store::Url) -> Self {
-        State { store: store }
+        State { store }
     }
 }
 
