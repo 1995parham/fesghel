@@ -1,64 +1,57 @@
 use actix_web::http::header;
-use actix_web::{HttpResponse, Responder, Scope, web};
+use actix_web::{HttpResponse, Responder, Scope, get, post, web};
 
 use crate::model;
 use crate::request;
 use crate::store;
 
-pub struct Url {
+pub struct State {
     store: store::Url,
 }
 
-impl Clone for Url {
-    fn clone(&self) -> Self {
-        Url {
-            store: self.store.clone(),
+impl State {
+    pub fn new(store: store::Url) -> Self {
+        State{
+            store: store,
         }
     }
 }
 
-impl Url {
-    pub fn new(store: store::Url) -> Self {
-        Url { store }
-    }
+#[post("/urls")]
+async fn create(data: web::Data<State>, url: web::Json<request::Url>) -> impl Responder {
+    log::info!("get {url:?}");
 
-    async fn create(data: web::Data<Self>, url: web::Json<request::Url>) -> impl Responder {
-        log::info!("get {url:?}");
+    let name = if url.name() == "-" {
+        store::Url::random_key()
+    } else {
+        String::from(url.name())
+    };
 
-        let name = if url.name() == "-" {
-            store::Url::random_key()
-        } else {
-            String::from(url.name())
-        };
-
-        let m = model::Url::new(url.url(), name.as_str());
-        match data.as_ref().store.store(&m).await {
-            Ok(..) => HttpResponse::Ok().json(m.key()),
-            Err(err) => {
-                log::error!("{err}");
-                HttpResponse::InternalServerError().json("Something went wrong")
-            }
+    let m = model::Url::new(url.url(), name.as_str());
+    match data.store.store(&m).await {
+        Ok(..) => HttpResponse::Ok().json(m.key()),
+        Err(err) => {
+            log::error!("{err}");
+            HttpResponse::InternalServerError().json("Something went wrong")
         }
     }
+}
 
-    async fn fetch(data: web::Data<Self>, name: web::Path<String>) -> impl Responder {
-        log::info!("get {name}");
+#[get("/{name}")]
+async fn fetch(data: web::Data<State>, name: web::Path<String>) -> impl Responder {
+    log::info!("get {name}");
 
-        let url = data.as_ref().store.fetch(name.as_str()).await;
+    let url = data.store.fetch(name.as_str()).await;
 
-        match url {
-            Some(url) => HttpResponse::TemporaryRedirect()
-                .insert_header((header::LOCATION, url.url()))
-                .finish(),
-            None => HttpResponse::NotFound().finish(),
-        }
+    match url {
+        Some(url) => HttpResponse::TemporaryRedirect()
+            .insert_header((header::LOCATION, url.url()))
+            .finish(),
+        None => HttpResponse::NotFound().finish(),
     }
+}
 
-    pub fn register(self, scope: Scope) -> Scope {
-        let data = web::Data::new(self);
-        scope
-            .app_data(data)
-            .route("/urls", web::post().to(Self::create))
-            .route("/{name}", web::get().to(Self::fetch))
-    }
+pub fn register(state: State, scope: Scope) -> Scope {
+    let data = web::Data::new(state);
+    scope.app_data(data).service(create).service(fetch)
 }

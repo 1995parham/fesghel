@@ -1,13 +1,10 @@
-use actix_web::{HttpResponse, Responder, Scope, web};
+use actix_web::{HttpResponse, Responder, Scope, get};
 
-pub struct Healthz {}
+#[get("/healthz")]
+async fn healthz() -> impl Responder {
+    HttpResponse::NoContent()
+}
 
-impl Healthz {
-    async fn healthz() -> impl Responder {
-        HttpResponse::NoContent()
-    }
-
-    pub fn register(scope: Scope) -> Scope {
-        scope.route("/healthz", web::get().to(Self::healthz))
-    }
+pub fn register(scope: Scope) -> Scope {
+    scope.service(healthz)
 }

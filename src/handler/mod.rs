@@ -1,5 +1,2 @@
-mod healthz;
-mod url;
-
-pub use healthz::*;
-pub use url::*;
+pub mod healthz;
+pub mod url;

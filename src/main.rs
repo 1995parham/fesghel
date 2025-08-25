@@ -18,11 +18,19 @@ async fn main() -> std::io::Result<()> {
     let db = database::connect(setting.database()).await;
 
     HttpServer::new(move || {
-        let url_handler = handler::Url::new(store::Url::new(db.clone()));
+        let store = store::Url::new(db.clone());
 
         App::new()
-            .service(url_handler.register(web::scope("/api")))
-            .service(handler::Healthz::register(web::scope("/")))
+            .service(
+                crate::handler::url::register(
+                    crate::handler::url::State::new(store), web::scope("/api")
+                )
+            )
+            .service(
+                crate::handler::healthz::register(
+                    web::scope("")
+                )
+            )
     })
     .workers(12)
     .bind(format!(

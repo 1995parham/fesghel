@@ -1,0 +1,18 @@
+### healthz
+
+GET 127.0.0.1:1378/healthz HTTP/1.1
+
+
+### url_create
+
+POST 127.0.0.1:1378/api/urls HTTP/1.1
+Content-Type: application/json
+
+{
+  "url": "elaheh-dastan.github.io"
+}
+
+
+### url_fetch
+
+GET 127.0.0.1:1378/api/{{url_create.response.body.$}} HTTP/1.1
