@@ -1,6 +1,8 @@
-# Fesghel
-
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/1995parham/fesghel/ci.yaml?label=ci&logo=github&style=flat-square&branch=main)
+<div align="center">
+    <h1>Fesghel</h1>
+    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/1995parham/fesghel/ci.yaml?style=for-the-badge&logo=github">
+    <img alt="GitHub Created At" src="https://img.shields.io/github/created-at/1995parham/fesghel?style=for-the-badge&logo=github">
+</div>
 
 ## Introduction
 
