@@ -1,4 +1,4 @@
-use mongodb::Database;
+use mongodb::{Database, bson};
 use rand::{Rng, distr::Alphanumeric, rng};
 
 use super::error::Error;
