@@ -1,4 +1,4 @@
-use mongodb::{Database, bson};
+use mongodb::{Collection, Database, bson};
 use rand::{Rng, distr::Alphanumeric, rng};
 
 use super::error::Error;
@@ -9,12 +9,14 @@ const LENGTH: usize = 6;
 
 #[derive(Clone)]
 pub struct Url {
-    db: Database,
+    collection: Collection<model::Url>,
 }
 
 impl Url {
     pub fn new(db: Database) -> Self {
-        Url { db }
+        Url {
+            collection: db.collection(COLLECTION),
+        }
     }
 
     pub fn random_key() -> String {
@@ -26,34 +28,21 @@ impl Url {
     }
 
     pub async fn fetch(&self, name: &str) -> Option<model::Url> {
-        let res = self
-            .db
-            .collection(COLLECTION)
+        self.collection
             .find_one(bson::doc! { "key": name })
-            .await;
-
-        match res {
-            Ok(d) => match d {
-                Some(d) => bson::from_bson(bson::Bson::Document(d)).expect("from_bson failed"),
-                None => None,
-            },
-            Err(..) => None,
-        }
+            .await
+            .ok()
+            .flatten()
     }
 
     pub async fn store(&self, url: &model::Url) -> Result<(), Error> {
-        match bson::to_bson(url).expect("to_bson failed") {
-            bson::Bson::Document(doc) => self
-                .db
-                .collection(COLLECTION)
-                .insert_one(doc)
-                .await
-                .map_err(|err| Error {
-                    error: Box::new(err),
-                })
-                .map(|_| ()),
-            _ => Ok(()),
-        }
+        self.collection
+            .insert_one(url)
+            .await
+            .map_err(|err| Error {
+                error: Box::new(err),
+            })
+            .map(|_| ())
     }
 }
 
