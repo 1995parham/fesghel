@@ -46,6 +46,7 @@ impl Url {
     }
 }
 
+#[cfg(test)]
 mod tests {
     #[test]
     fn random_key() {

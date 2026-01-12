@@ -706,6 +706,7 @@ dependencies = [
  "rand",
  "serde",
  "simple_logger",
+ "url",
 ]
 
 [[package]]

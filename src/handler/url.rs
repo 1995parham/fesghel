@@ -19,6 +19,11 @@ impl State {
 async fn create(data: web::Data<State>, url: web::Json<request::Url>) -> impl Responder {
     log::info!("get {url:?}");
 
+    if let Err(err) = url.validate() {
+        log::warn!("validation failed: {err}");
+        return HttpResponse::BadRequest().json(err.to_string());
+    }
+
     let name = if url.name() == "-" {
         store::Url::random_key()
     } else {
