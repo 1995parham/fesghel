@@ -84,9 +84,10 @@ impl Url {
                 // Check if this is a duplicate key error (MongoDB error code 11000).
                 // Pattern matching on nested enum variants to extract error details.
                 if let ErrorKind::Write(WriteFailure::WriteError(write_error)) = err.kind.as_ref()
-                    && write_error.code == 11000 {
-                        return Error::DuplicateKey(url.key().to_string());
-                    }
+                    && write_error.code == 11000
+                {
+                    return Error::DuplicateKey(url.key().to_string());
+                }
                 // Wrap other errors in the Database variant.
                 Error::Database(Box::new(err))
             })
