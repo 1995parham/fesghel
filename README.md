@@ -9,6 +9,87 @@
 Here I am trying to implement a URL shortener with concepts that I use in Golang but this time in Rust.
 It uses MongoDB as its storage backend.
 
+## Prerequisites
+
+- Rust (Edition 2024)
+- MongoDB
+
+## Quick Start
+
+1. Start MongoDB using Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+2. Run the application:
+
+```bash
+cargo run
+```
+
+The server will start on `http://0.0.0.0:1378`.
+
+## API
+
+### Health Check
+
+```http
+GET /healthz
+```
+
+Returns `200 OK` if the service is healthy.
+
+### Create Short URL
+
+```http
+POST /api/urls
+Content-Type: application/json
+
+{
+  "url": "https://example.com",
+  "name": "my-custom-key"  // optional, random key generated if omitted or "-"
+}
+```
+
+**Response:** Returns the generated key as JSON string.
+
+### Redirect to Original URL
+
+```http
+GET /api/{key}
+```
+
+Redirects (307 Temporary Redirect) to the original URL, or returns 404 if not found.
+
+## Configuration
+
+Configuration is stored in `config/default.toml`:
+
+```toml
+[server]
+host = "0.0.0.0"
+port = 1378
+
+[database]
+address = "mongodb://127.0.0.1:27017"
+name = "fesghel"
+```
+
+## Docker
+
+Build and run using Docker:
+
+```bash
+# Build the image
+docker build -t fesghel .
+
+# Run the container
+docker run -p 1378:1378 fesghel
+```
+
+The Dockerfile uses a multi-stage build with musl for a minimal scratch-based image.
+
 ## Nomenclature
 
 Fesghel is a name of the following haapoo 🐶:
