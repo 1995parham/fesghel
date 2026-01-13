@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
         "{}:{}",
         setting.server().host(),
         setting.server().port()
-    ))?  // `?` operator: early return if Result is Err, otherwise unwrap Ok value.
+    ))? // `?` operator: early return if Result is Err, otherwise unwrap Ok value.
     .run()
     .await
 }
