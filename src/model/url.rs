@@ -38,3 +38,66 @@ impl Url {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_creates_url_with_correct_values() {
+        let url = Url::new("https://example.com", "abc123");
+        assert_eq!(url.url(), "https://example.com");
+        assert_eq!(url.key(), "abc123");
+    }
+
+    #[test]
+    fn new_handles_empty_strings() {
+        let url = Url::new("", "");
+        assert_eq!(url.url(), "");
+        assert_eq!(url.key(), "");
+    }
+
+    #[test]
+    fn new_handles_unicode() {
+        let url = Url::new("https://例え.jp/パス", "キー");
+        assert_eq!(url.url(), "https://例え.jp/パス");
+        assert_eq!(url.key(), "キー");
+    }
+
+    #[test]
+    fn serialize_to_json() {
+        let url = Url::new("https://example.com", "test");
+        // `serde_json::to_string` serializes to JSON string.
+        let json = serde_json::to_string(&url).unwrap();
+        assert!(json.contains("\"url\":\"https://example.com\""));
+        assert!(json.contains("\"key\":\"test\""));
+    }
+
+    #[test]
+    fn deserialize_from_json() {
+        let json = r#"{"url":"https://example.com","key":"mykey"}"#;
+        // `serde_json::from_str` deserializes from JSON string.
+        let url: Url = serde_json::from_str(json).unwrap();
+        assert_eq!(url.url(), "https://example.com");
+        assert_eq!(url.key(), "mykey");
+    }
+
+    #[test]
+    fn serialize_deserialize_roundtrip() {
+        let original = Url::new("https://test.com/path?q=1", "key123");
+        let json = serde_json::to_string(&original).unwrap();
+        let restored: Url = serde_json::from_str(&json).unwrap();
+        assert_eq!(original.url(), restored.url());
+        assert_eq!(original.key(), restored.key());
+    }
+
+    #[test]
+    fn debug_format() {
+        let url = Url::new("https://example.com", "key");
+        // `format!("{:?}", ...)` uses Debug trait.
+        let debug = format!("{:?}", url);
+        assert!(debug.contains("Url"));
+        assert!(debug.contains("https://example.com"));
+        assert!(debug.contains("key"));
+    }
+}
