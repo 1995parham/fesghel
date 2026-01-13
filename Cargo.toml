@@ -9,18 +9,17 @@ edition = "2024"
 [dependencies]
 actix-web = "4"
 mongodb = "3"
-serde = "1.0.217"
-config = { version = "0.15.19", features = ["toml"] }
-chrono = { version = "0.4.41", features = ["serde"] }
-rand = "0.9.0"
-log = "0.4.29"
-simple_logger = "5.0.0"
+serde = "1"
+config = { version = "0.15", features = ["toml"] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.9"
+log = "0.4"
+simple_logger = "5"
 url = "2"
 # Prometheus metrics
-actix-web-prom = "0.9"
-# Must match the prometheus version used by actix-web-prom (0.13.x)
-prometheus = "0.13"
-lazy_static = "1.5"
+actix-web-prom = "0.10"
+prometheus = "0.14"
+lazy_static = "1"
 
 # Dev dependencies are only compiled for tests and examples.
 [dev-dependencies]
