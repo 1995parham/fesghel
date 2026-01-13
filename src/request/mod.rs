@@ -52,3 +52,79 @@ impl Url {
         self.name.as_deref().unwrap_or("-")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Helper function to create Url for testing.
+    // In tests, we often need to construct structs that don't have public constructors.
+    fn make_url(url: &str, name: Option<&str>) -> Url {
+        Url {
+            url: url.to_string(),
+            name: name.map(String::from),
+        }
+    }
+
+    #[test]
+    fn validate_valid_https_url() {
+        let url = make_url("https://example.com", None);
+        assert!(url.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_valid_http_url() {
+        let url = make_url("http://example.com/path?query=1", None);
+        assert!(url.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_valid_url_with_port() {
+        let url = make_url("https://localhost:8080/api", None);
+        assert!(url.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_invalid_url_no_scheme() {
+        let url = make_url("example.com", None);
+        assert!(url.validate().is_err());
+    }
+
+    #[test]
+    fn validate_invalid_url_empty() {
+        let url = make_url("", None);
+        assert!(url.validate().is_err());
+    }
+
+    #[test]
+    fn validate_invalid_url_random_string() {
+        let url = make_url("not a url at all", None);
+        assert!(url.validate().is_err());
+    }
+
+    #[test]
+    fn name_returns_value_when_present() {
+        let url = make_url("https://example.com", Some("mykey"));
+        assert_eq!(url.name(), "mykey");
+    }
+
+    #[test]
+    fn name_returns_dash_when_none() {
+        let url = make_url("https://example.com", None);
+        assert_eq!(url.name(), "-");
+    }
+
+    #[test]
+    fn url_returns_the_url_string() {
+        let url = make_url("https://example.com/path", Some("key"));
+        assert_eq!(url.url(), "https://example.com/path");
+    }
+
+    #[test]
+    fn validation_error_display() {
+        let url = make_url("invalid", None);
+        let err = url.validate().unwrap_err();
+        // `to_string()` uses the Display trait implementation.
+        assert!(err.to_string().contains("invalid URL"));
+    }
+}
