@@ -2,6 +2,7 @@ use actix_web::http::header;
 use actix_web::{HttpResponse, Responder, Scope, get, post, web};
 
 // `crate::` refers to the root of the current crate (project).
+use crate::metrics;
 use crate::model;
 use crate::request;
 use crate::store;
@@ -36,6 +37,7 @@ async fn create(data: web::Data<State>, url: web::Json<request::Url>) -> impl Re
     // More concise than full `match` when you only care about one variant.
     if let Err(err) = url.validate() {
         log::warn!("validation failed: {err}");
+        metrics::inc_error("validation");
         return HttpResponse::BadRequest().json(err.to_string());
     }
 
@@ -52,15 +54,21 @@ async fn create(data: web::Data<State>, url: web::Json<request::Url>) -> impl Re
     // `match` is exhaustive pattern matching - all variants must be handled.
     // `Ok(..)` uses `..` to ignore the inner value we don't need.
     match data.store.store(&m).await {
-        Ok(..) => HttpResponse::Ok().json(m.key()),
+        Ok(..) => {
+            // Increment custom metric for successful URL creation.
+            metrics::inc_urls_created();
+            HttpResponse::Ok().json(m.key())
+        }
         Err(err) => {
             // Check for duplicate key error and return 409 Conflict.
             // `is_duplicate_key()` is a helper method on our error enum.
             if err.is_duplicate_key() {
                 log::warn!("{err}");
+                metrics::inc_error("duplicate_key");
                 return HttpResponse::Conflict().json(err.to_string());
             }
             log::error!("{err}");
+            metrics::inc_error("database");
             HttpResponse::InternalServerError().json("Something went wrong")
         }
     }
