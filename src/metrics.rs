@@ -2,7 +2,7 @@
 // Custom metrics complement the HTTP metrics from actix-web-prom.
 
 use lazy_static::lazy_static;
-use prometheus::{Counter, Gauge, IntCounterVec, Opts, Registry};
+use prometheus::{Counter, Gauge, Histogram, HistogramOpts, IntCounterVec, Opts, Registry};
 
 // `lazy_static!` creates static variables that are initialized on first access.
 // Useful for metrics that need runtime initialization.
@@ -34,6 +34,35 @@ lazy_static! {
         Opts::new("fesghel_app_info", "Application build information")
             .const_label("version", env!("CARGO_PKG_VERSION"))
     ).expect("metric can be created");
+
+    // Database operation counters - track total reads and writes.
+    pub static ref DB_READS: Counter = Counter::with_opts(
+        Opts::new("fesghel_db_reads_total", "Total number of database read operations")
+    ).expect("metric can be created");
+
+    pub static ref DB_WRITES: Counter = Counter::with_opts(
+        Opts::new("fesghel_db_writes_total", "Total number of database write operations")
+    ).expect("metric can be created");
+
+    // Histogram: tracks distribution of values (latency, size, etc.).
+    // Buckets define the boundaries for grouping observations.
+    // Default buckets: 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10
+    pub static ref DB_READ_DURATION: Histogram = Histogram::with_opts(
+        HistogramOpts::new(
+            "fesghel_db_read_duration_seconds",
+            "Database read operation duration in seconds"
+        )
+        // Custom buckets optimized for database operations (in seconds).
+        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0])
+    ).expect("metric can be created");
+
+    pub static ref DB_WRITE_DURATION: Histogram = Histogram::with_opts(
+        HistogramOpts::new(
+            "fesghel_db_write_duration_seconds",
+            "Database write operation duration in seconds"
+        )
+        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0])
+    ).expect("metric can be created");
 }
 
 /// Register all custom metrics with the registry.
@@ -55,6 +84,22 @@ pub fn register_metrics() {
         .register(Box::new(APP_INFO.clone()))
         .expect("APP_INFO metric registered");
 
+    REGISTRY
+        .register(Box::new(DB_READS.clone()))
+        .expect("DB_READS metric registered");
+
+    REGISTRY
+        .register(Box::new(DB_WRITES.clone()))
+        .expect("DB_WRITES metric registered");
+
+    REGISTRY
+        .register(Box::new(DB_READ_DURATION.clone()))
+        .expect("DB_READ_DURATION metric registered");
+
+    REGISTRY
+        .register(Box::new(DB_WRITE_DURATION.clone()))
+        .expect("DB_WRITE_DURATION metric registered");
+
     // Set app info to 1 (presence indicator with version label).
     APP_INFO.set(1.0);
 }
@@ -75,6 +120,20 @@ pub fn inc_urls_created() {
 /// Error types: "duplicate_key", "database", "validation"
 pub fn inc_error(error_type: &str) {
     ERRORS.with_label_values(&[error_type]).inc();
+}
+
+/// Record a database read operation with its duration.
+/// Duration should be in seconds (use `Instant::elapsed().as_secs_f64()`).
+pub fn observe_db_read(duration_secs: f64) {
+    DB_READS.inc();
+    DB_READ_DURATION.observe(duration_secs);
+}
+
+/// Record a database write operation with its duration.
+/// Duration should be in seconds (use `Instant::elapsed().as_secs_f64()`).
+pub fn observe_db_write(duration_secs: f64) {
+    DB_WRITES.inc();
+    DB_WRITE_DURATION.observe(duration_secs);
 }
 
 #[cfg(test)]
@@ -99,5 +158,23 @@ mod tests {
         let before = ERRORS.with_label_values(&["test_error"]).get();
         inc_error("test_error");
         assert_eq!(ERRORS.with_label_values(&["test_error"]).get(), before + 1);
+    }
+
+    #[test]
+    fn db_read_increments_counter_and_histogram() {
+        let before = DB_READS.get() as u64;
+        let count_before = DB_READ_DURATION.get_sample_count();
+        observe_db_read(0.015); // 15ms
+        assert_eq!(DB_READS.get() as u64, before + 1);
+        assert_eq!(DB_READ_DURATION.get_sample_count(), count_before + 1);
+    }
+
+    #[test]
+    fn db_write_increments_counter_and_histogram() {
+        let before = DB_WRITES.get() as u64;
+        let count_before = DB_WRITE_DURATION.get_sample_count();
+        observe_db_write(0.025); // 25ms
+        assert_eq!(DB_WRITES.get() as u64, before + 1);
+        assert_eq!(DB_WRITE_DURATION.get_sample_count(), count_before + 1);
     }
 }

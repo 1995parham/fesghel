@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use mongodb::bson::doc;
 use mongodb::error::{ErrorKind, WriteFailure};
 use mongodb::{Collection, Database, IndexModel};
@@ -5,6 +7,7 @@ use rand::{Rng, distr::Alphanumeric, rng};
 
 // `super::` refers to the parent module. Here it accesses `store::error`.
 use super::error::Error;
+use crate::metrics;
 use crate::model;
 
 // `const` defines a compile-time constant. Must have explicit type annotation.
@@ -64,20 +67,33 @@ impl Url {
     // `&self` borrows self immutably - method can read but not modify.
     // `&str` is a borrowed string slice - avoids copying the string data.
     pub async fn fetch(&self, name: &str) -> Option<model::Url> {
-        self.collection
+        // `Instant::now()` captures current time for measuring duration.
+        let start = Instant::now();
+
+        let result = self
+            .collection
             // `doc!` macro creates BSON documents with JSON-like syntax.
             .find_one(doc! { "key": name })
             .await
             // `.ok()` converts Result<T, E> to Option<T>, discarding errors.
             .ok()
             // `.flatten()` converts Option<Option<T>> to Option<T>.
-            .flatten()
+            .flatten();
+
+        // Record read operation duration in seconds.
+        // `elapsed()` returns Duration, `as_secs_f64()` converts to seconds.
+        metrics::observe_db_read(start.elapsed().as_secs_f64());
+
+        result
     }
 
     // `&model::Url` borrows the URL - we don't take ownership.
     // `Result<(), Error>` returns either success (unit type `()`) or an Error.
     pub async fn store(&self, url: &model::Url) -> Result<(), Error> {
-        self.collection
+        let start = Instant::now();
+
+        let result = self
+            .collection
             .insert_one(url)
             .await
             .map_err(|err| {
@@ -93,7 +109,12 @@ impl Url {
             })
             // `map` transforms the Ok value. `|_|` ignores the input.
             // `()` is the unit type - similar to void but is an actual value.
-            .map(|_| ())
+            .map(|_| ());
+
+        // Record write operation duration regardless of success/failure.
+        metrics::observe_db_write(start.elapsed().as_secs_f64());
+
+        result
     }
 }
 
