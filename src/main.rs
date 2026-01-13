@@ -26,12 +26,16 @@ async fn main() -> std::io::Result<()> {
     // This is non-blocking - other tasks can run while waiting.
     let db = database::connect(setting.database()).await;
 
-    // `move` keyword transfers ownership of captured variables (`db`) into the closure.
+    // Create store before server starts - `new()` is async to create indexes.
+    // Store is created once and cloned for each worker thread.
+    let store = store::Url::new(db).await;
+
+    // `move` keyword transfers ownership of captured variables (`store`) into the closure.
     // Required here because the closure outlives the current function scope.
     HttpServer::new(move || {
         // `clone()` creates a deep copy. Required because each worker thread
-        // needs its own instance. `Database` implements `Clone` trait.
-        let store = store::Url::new(db.clone());
+        // needs its own instance. `Url` implements `Clone` trait.
+        let store = store.clone();
 
         // Builder pattern: chain method calls that return `Self` for fluent API.
         App::new()

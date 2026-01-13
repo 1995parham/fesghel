@@ -1,4 +1,6 @@
-use mongodb::{Collection, Database, bson};
+use mongodb::bson::doc;
+use mongodb::error::{ErrorKind, WriteFailure};
+use mongodb::{Collection, Database, IndexModel};
 use rand::{Rng, distr::Alphanumeric, rng};
 
 // `super::` refers to the parent module. Here it accesses `store::error`.
@@ -21,10 +23,27 @@ pub struct Url {
 }
 
 impl Url {
-    pub fn new(db: Database) -> Self {
-        Url {
-            collection: db.collection(COLLECTION),
-        }
+    // `async fn` returns a Future. Use when method performs I/O operations.
+    // This constructor is async because it creates database indexes.
+    pub async fn new(db: Database) -> Self {
+        let collection = db.collection(COLLECTION);
+
+        // Create a unique index on `key` field.
+        // MongoDB will reject inserts with duplicate keys (error code 11000).
+        let index = IndexModel::builder()
+            .keys(doc! { "key": 1 })
+            .options(
+                mongodb::options::IndexOptions::builder()
+                    .unique(true)
+                    .build(),
+            )
+            .build();
+
+        // `let _ = ...` explicitly ignores the Result.
+        // Index creation may fail if index already exists - that's OK.
+        let _ = collection.create_index(index).await;
+
+        Url { collection }
     }
 
     pub fn random_key() -> String {
@@ -47,7 +66,7 @@ impl Url {
     pub async fn fetch(&self, name: &str) -> Option<model::Url> {
         self.collection
             // `doc!` macro creates BSON documents with JSON-like syntax.
-            .find_one(bson::doc! { "key": name })
+            .find_one(doc! { "key": name })
             .await
             // `.ok()` converts Result<T, E> to Option<T>, discarding errors.
             .ok()
@@ -61,11 +80,16 @@ impl Url {
         self.collection
             .insert_one(url)
             .await
-            // `map_err` transforms the error type, leaving Ok unchanged.
-            // Closure `|err|` captures the error and wraps it in our Error type.
-            .map_err(|err| Error {
-                // `Box::new()` allocates on heap. Required for trait objects.
-                error: Box::new(err),
+            .map_err(|err| {
+                // Check if this is a duplicate key error (MongoDB error code 11000).
+                // Pattern matching on nested enum variants to extract error details.
+                if let ErrorKind::Write(WriteFailure::WriteError(write_error)) = err.kind.as_ref() {
+                    if write_error.code == 11000 {
+                        return Error::DuplicateKey(url.key().to_string());
+                    }
+                }
+                // Wrap other errors in the Database variant.
+                Error::Database(Box::new(err))
             })
             // `map` transforms the Ok value. `|_|` ignores the input.
             // `()` is the unit type - similar to void but is an actual value.

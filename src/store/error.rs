@@ -1,36 +1,42 @@
-// `std::error` and `std::fmt` are standard library modules.
-// Rust's standard library provides core functionality.
-use std::error;
 use std::fmt;
 
-// `#[derive(Debug)]` auto-implements the Debug trait for printing with `{:?}`.
-// Required for types used in error messages and debugging.
+// `enum` allows defining distinct error variants with different data.
+// This is more expressive than a single struct - callers can match on variants.
 #[derive(Debug)]
-pub struct Error {
-    // `Box<dyn Trait>` is a trait object - a pointer to any type implementing Trait.
-    // `dyn` indicates dynamic dispatch (runtime polymorphism via vtable).
-    // `Box` provides heap allocation for the dynamically-sized trait object.
-    pub error: Box<dyn error::Error>,
+pub enum Error {
+    // Variant for duplicate key errors (collision detection).
+    // Contains the key that caused the collision.
+    DuplicateKey(String),
+    // Variant wrapping underlying database errors.
+    // `Box<dyn ...>` is a trait object for any error type.
+    Database(Box<dyn std::error::Error>),
 }
 
-// Implementing `Display` trait allows formatting with `{}` in format strings.
-// This is how errors get their human-readable message.
-impl fmt::Display for Error {
-    // `&self` borrows self, `&mut fmt::Formatter` is the output buffer.
-    // `'_` is an elided lifetime - compiler infers it automatically.
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // `write!` macro writes formatted text to a formatter or buffer.
-        write!(f, "store error: {}", self.error)
+impl Error {
+    // Helper method to check if this error is a duplicate key error.
+    // Useful for handlers to return appropriate HTTP status codes.
+    pub fn is_duplicate_key(&self) -> bool {
+        matches!(self, Error::DuplicateKey(_))
     }
 }
 
-// Implementing `std::error::Error` trait makes this a proper Rust error type.
-// Enables use with `?` operator and error handling ecosystem.
-impl error::Error for Error {
-    // `source()` returns the underlying cause of the error (error chaining).
-    // `'static` lifetime means the error doesn't borrow temporary data.
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        // `&*self.error` dereferences Box then re-borrows: Box<T> -> T -> &T
-        Some(&*self.error)
+// Implementing `Display` for human-readable error messages.
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // `match` on enum variants to provide specific messages.
+        match self {
+            Error::DuplicateKey(key) => write!(f, "key already exists: {}", key),
+            Error::Database(err) => write!(f, "database error: {}", err),
+        }
+    }
+}
+
+// Implementing `std::error::Error` for integration with error handling ecosystem.
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Error::DuplicateKey(_) => None,
+            Error::Database(err) => Some(&**err),
+        }
     }
 }

@@ -54,6 +54,12 @@ async fn create(data: web::Data<State>, url: web::Json<request::Url>) -> impl Re
     match data.store.store(&m).await {
         Ok(..) => HttpResponse::Ok().json(m.key()),
         Err(err) => {
+            // Check for duplicate key error and return 409 Conflict.
+            // `is_duplicate_key()` is a helper method on our error enum.
+            if err.is_duplicate_key() {
+                log::warn!("{err}");
+                return HttpResponse::Conflict().json(err.to_string());
+            }
             log::error!("{err}");
             HttpResponse::InternalServerError().json("Something went wrong")
         }
