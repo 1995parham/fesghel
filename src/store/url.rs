@@ -3,7 +3,7 @@ use std::time::Instant;
 use mongodb::bson::doc;
 use mongodb::error::{ErrorKind, WriteFailure};
 use mongodb::{Collection, Database, IndexModel};
-use rand::{Rng, distr::Alphanumeric, rng};
+use rand::{RngExt, distr::Alphanumeric, rng};
 
 // `super::` refers to the parent module. Here it accesses `store::error`.
 use super::error::Error;
