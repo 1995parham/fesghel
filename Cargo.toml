@@ -12,7 +12,7 @@ mongodb = "3"
 serde = "1"
 config = { version = "0.15", features = ["toml"] }
 chrono = { version = "0.4", features = ["serde"] }
-rand = "0.9"
+rand = "0.10"
 log = "0.4"
 simple_logger = "5"
 url = "2"
