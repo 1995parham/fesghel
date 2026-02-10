@@ -1,69 +1,97 @@
 // Prometheus metrics module for application observability.
 // Custom metrics complement the HTTP metrics from actix-web-prom.
 
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use prometheus::{Counter, Gauge, Histogram, HistogramOpts, IntCounterVec, Opts, Registry};
 
-// `lazy_static!` creates static variables that are initialized on first access.
+// `LazyLock` creates static variables that are initialized on first access.
 // Useful for metrics that need runtime initialization.
-lazy_static! {
-    // Registry holds all metrics. We create a custom one to share with actix-web-prom.
-    pub static ref REGISTRY: Registry = Registry::new();
 
-    // Gauge: a metric that can go up or down (current value).
-    // Used for things like worker count, active connections, queue size.
-    pub static ref WORKERS: Gauge = Gauge::with_opts(
-        Opts::new("fesghel_workers", "Number of HTTP server worker threads")
-    ).expect("metric can be created");
+// Registry holds all metrics. We create a custom one to share with actix-web-prom.
+pub static REGISTRY: LazyLock<Registry> = LazyLock::new(Registry::new);
 
-    // Counter: a metric that only increases (cumulative total).
-    // Used for counting events like requests, errors, items processed.
-    pub static ref URLS_CREATED: Counter = Counter::with_opts(
-        Opts::new("fesghel_urls_created_total", "Total number of shortened URLs created")
-    ).expect("metric can be created");
+// Gauge: a metric that can go up or down (current value).
+// Used for things like worker count, active connections, queue size.
+pub static WORKERS: LazyLock<Gauge> = LazyLock::new(|| {
+    Gauge::with_opts(Opts::new(
+        "fesghel_workers",
+        "Number of HTTP server worker threads",
+    ))
+    .expect("metric can be created")
+});
 
-    // IntCounterVec: a counter with labels for dimensional data.
-    // Labels allow slicing metrics by different dimensions.
-    pub static ref ERRORS: IntCounterVec = IntCounterVec::new(
+// Counter: a metric that only increases (cumulative total).
+// Used for counting events like requests, errors, items processed.
+pub static URLS_CREATED: LazyLock<Counter> = LazyLock::new(|| {
+    Counter::with_opts(Opts::new(
+        "fesghel_urls_created_total",
+        "Total number of shortened URLs created",
+    ))
+    .expect("metric can be created")
+});
+
+// IntCounterVec: a counter with labels for dimensional data.
+// Labels allow slicing metrics by different dimensions.
+pub static ERRORS: LazyLock<IntCounterVec> = LazyLock::new(|| {
+    IntCounterVec::new(
         Opts::new("fesghel_errors_total", "Total number of errors by type"),
-        &["type"]  // Label name - values: "duplicate_key", "database", "validation"
-    ).expect("metric can be created");
+        &["type"], // Label name - values: "duplicate_key", "database", "validation"
+    )
+    .expect("metric can be created")
+});
 
-    // Info metric for build/version metadata (implemented as gauge with labels).
-    pub static ref APP_INFO: Gauge = Gauge::with_opts(
+// Info metric for build/version metadata (implemented as gauge with labels).
+pub static APP_INFO: LazyLock<Gauge> = LazyLock::new(|| {
+    Gauge::with_opts(
         Opts::new("fesghel_app_info", "Application build information")
-            .const_label("version", env!("CARGO_PKG_VERSION"))
-    ).expect("metric can be created");
+            .const_label("version", env!("CARGO_PKG_VERSION")),
+    )
+    .expect("metric can be created")
+});
 
-    // Database operation counters - track total reads and writes.
-    pub static ref DB_READS: Counter = Counter::with_opts(
-        Opts::new("fesghel_db_reads_total", "Total number of database read operations")
-    ).expect("metric can be created");
+// Database operation counters - track total reads and writes.
+pub static DB_READS: LazyLock<Counter> = LazyLock::new(|| {
+    Counter::with_opts(Opts::new(
+        "fesghel_db_reads_total",
+        "Total number of database read operations",
+    ))
+    .expect("metric can be created")
+});
 
-    pub static ref DB_WRITES: Counter = Counter::with_opts(
-        Opts::new("fesghel_db_writes_total", "Total number of database write operations")
-    ).expect("metric can be created");
+pub static DB_WRITES: LazyLock<Counter> = LazyLock::new(|| {
+    Counter::with_opts(Opts::new(
+        "fesghel_db_writes_total",
+        "Total number of database write operations",
+    ))
+    .expect("metric can be created")
+});
 
-    // Histogram: tracks distribution of values (latency, size, etc.).
-    // Buckets define the boundaries for grouping observations.
-    // Default buckets: 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10
-    pub static ref DB_READ_DURATION: Histogram = Histogram::with_opts(
+// Histogram: tracks distribution of values (latency, size, etc.).
+// Buckets define the boundaries for grouping observations.
+// Default buckets: 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10
+pub static DB_READ_DURATION: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::with_opts(
         HistogramOpts::new(
             "fesghel_db_read_duration_seconds",
-            "Database read operation duration in seconds"
+            "Database read operation duration in seconds",
         )
         // Custom buckets optimized for database operations (in seconds).
-        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0])
-    ).expect("metric can be created");
+        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0]),
+    )
+    .expect("metric can be created")
+});
 
-    pub static ref DB_WRITE_DURATION: Histogram = Histogram::with_opts(
+pub static DB_WRITE_DURATION: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::with_opts(
         HistogramOpts::new(
             "fesghel_db_write_duration_seconds",
-            "Database write operation duration in seconds"
+            "Database write operation duration in seconds",
         )
-        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0])
-    ).expect("metric can be created");
-}
+        .buckets(vec![0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0]),
+    )
+    .expect("metric can be created")
+});
 
 /// Register all custom metrics with the registry.
 /// Called once at application startup before creating the prometheus middleware.
