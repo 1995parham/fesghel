@@ -55,7 +55,7 @@ mod tests {
 
     #[test]
     fn database_error_is_not_duplicate_key() {
-        let io_err = io::Error::new(io::ErrorKind::Other, "connection failed");
+        let io_err = io::Error::other("connection failed");
         let err = Error::Database(Box::new(io_err));
         assert!(!err.is_duplicate_key());
     }
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn database_error_display_message() {
-        let io_err = io::Error::new(io::ErrorKind::Other, "connection refused");
+        let io_err = io::Error::other("connection refused");
         let err = Error::Database(Box::new(io_err));
         assert_eq!(err.to_string(), "database error: connection refused");
     }
@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn database_error_has_source() {
-        let io_err = io::Error::new(io::ErrorKind::Other, "timeout");
+        let io_err = io::Error::other("timeout");
         let err = Error::Database(Box::new(io_err));
         // Database errors should have a source (the wrapped error).
         assert!(err.source().is_some());
